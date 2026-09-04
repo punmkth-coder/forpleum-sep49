@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOUR DAY 🎂</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,300;0,600;0,800;1,800&family=Permanent+Marker&family=Silkscreen&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+
+    <style>
+        /* Animation ตอนเข้าหน้าเว็บ */
+.reveal-item {
+    opacity: 0;
+    transform: translateY(40px) scale(0.96);
+}
+
+.reveal-item.show {
+    animation: revealUp 0.8s ease-out forwards;
+}
+
+@keyframes revealUp {
+    0% {
+        opacity: 0;
+        transform: translateY(40px) scale(0.96);
+    }
+
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+        scale(1);
+    }
+}
+
+        :root {
+            --accent-color: #ffffff;
+            --accent-glow: rgba(255, 255, 255, 0.4);
+            --bg-color: #080808;
+        }
+
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: var(--bg-color);
+            color: #ffffff;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* Handwritten / Sketch font style for titles */
+        .font-sketch {
+            font-family: 'Permanent Marker', cursive, 'Kanit', sans-serif;
+        }
+
+        /* Hand-drawn sketchy border effect */
+        .sketch-border {
+            border: 3px solid var(--accent-color);
+            border-radius: 255px 15px 225px 15px/15px 225px 15px 255px;
+            box-shadow: 4px 4px 0px var(--accent-color), inset 0 0 15px var(--accent-glow);
+            transition: all 0.3s ease;
+        }
+
+        .sketch-border:hover {
+            box-shadow: 6px 6px 0px var(--accent-color), inset 0 0 25px var(--accent-glow);
+        }
+
+        .sketch-button {
+            border: 2px solid var(--accent-color);
+            border-radius: 180px 20px 190px 20px/20px 190px 20px 180px;
+            box-shadow: 3px 3px 0px var(--accent-color);
+            transition: transform 0.1s ease, box-shadow 0.1s ease;
+        }
+
+        .sketch-button:active {
+            transform: translate(2px, 2px);
+            box-shadow: 1px 1px 0px var(--accent-color);
+        }
+
+        /* Wobble / Jiggle Animations (กระดุกกระดิก ไม่หมุน) */
+        @keyframes wobble-slow {
+            0%, 100% { transform: rotate(-1.5deg) scale(1); }
+            50% { transform: rotate(1.5deg) scale(1.02); }
+        }
+
+        @keyframes wobble-fast {
+            0%, 100% { transform: translate(0, 0) rotate(-2deg); }
+            25% { transform: translate(1px, -2px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            75% { transform: translate(2px, 1px) rotate(2deg); }
+        }
+
+        .wiggle {
+            animation: wobble-slow 2.2s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        .wiggle-fast {
+            animation: wobble-fast 0.8s ease-in-out infinite;
+            display: inline-block;
+        }
+
+        /* Falling text rain canvas container */
+        #falling-text-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .falling-item {
+            position: absolute;
+            color: var(--accent-color);
+            opacity: 0.65;
+            font-weight: 800;
+            white-space: nowrap;
+            text-shadow: 0 0 8px var(--accent-glow);
+            animation: fall linear infinite;
+        }
+
+        @keyframes fall {
+            0% {
+                transform: translateY(-100px) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 0.8; }
+            90% { opacity: 0.8; }
+            100% {
+                transform: translateY(105vh) rotate(15deg);
+                opacity: 0;
+            }
+        }
+
+        /* Custom Tape Effect for Photos */
+        .tape {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 1px dashed rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(2px);
+            transform: rotate(-5deg);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #333;
+            border-radius: 4px;
+            border: 1px solid var(--accent-color);
+        }
+    </style>
+</head>
+<body class="min-h-screen relative flex flex-col justify-between p-4 md:p-8">
+
+    
+
+    <div id="falling-text-container"></div>
+
+    <!-- Overlay ก่อนเข้าหน้าเว็บ -->
+    <div id="overlay" class="fixed inset-0 bg-black/95 z-50 flex flex-col items-center justify-center p-6 text-center backdrop-blur-md transition-opacity duration-500">
+        <div class="sketch-border p-8 max-w-md w-full bg-zinc-950/90 relative ">
+            <div class="absolute -top-6 left-1/2 -translate-x-1/2 bg-black px-4 border border-white rounded-full">
+                <i class="fa-solid font-sketch text-xs tracking-widest uppercase">baby, luv you xoxo</i>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold font-sketch mb-3 tracking-wider wiggle">HBD BRO!</h1>
+            <!-- <p class="text-zinc-400 mb-8 text-sm">กดปุ่มด้านล่างเพื่อเข้าสู่เว็บไซต์วันเกิดสุดเท่<br>(พร้อมเสียงเพลง & เอฟเฟกต์สุดปั่น)</p> -->
+            
+            <button id="enter-btn" class="w-full py-4 bg-white text-black font-extrabold text-xl rounded-xl sketch-button hover:bg-zinc-200 transition flex items-center justify-center gap-3">
+                <i class="fa-solid fa-play"></i> รอไรอะ กดดิน้องชาย                                                       
+            </button>
+        </div>
+    </div>
+
+    <header class="max-w-4xl mx-auto w-full text-center mt-4 mb-8 relative z-20 reveal-item">
+        <div class="inline-block relative">
+            <span class="text-xs uppercase tracking-widest px-3 py-1 bg-zinc-900 border border-zinc-700 rounded-full mb-2 inline-block text-zinc-400">
+                <i class="fa-solid fa-crown text-amber-400 mr-1"></i> Noob Pleum underFoot pun everythings
+            </span>
+            <h1 id="main-title" class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight font-sketch wiggle my-2 text-white drop-shadow-[0_0_15px_rgba(255,255,255,0.3)]">
+                HAPPY BIRTHDAY!
+            </h1>
+            <p class="text-zinc-400 text-sm md:text-base wiggle-fast mt-1">
+                5555555555555 โดนกูดิ เหี้ย ควย สัส สัส ควย เหี้ย
+            </p>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-8 my-auto relative z-20">
+        
+        <!-- PHOTO CONTAINER 1 (นำลิงก์รูปเพื่อนรูปแรกมาใส่ที่ src ได้เลย) -->
+        <div class="sketch-border p-4 bg-zinc-950/80 relative flex flex-col items-center reveal-item">
+            <div class="tape absolute -top-3 w-28 h-7 z-30"></div>
+            
+            <div class="relative w-full aspect-square bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 flex items-center justify-center mb-4">
+                <img id="img-preview-1" src="P3.png" alt="Friend Photo 1" class="w-full h-full object-cover">
+            </div>
+
+            <div class="w-full text-center">
+                <p class="font-sketch text-lg text-zinc-300 wiggle">รองธนากร everythings and everytime</p>
+            </div>
+        </div>
+
+        <!-- PHOTO CONTAINER 2 (นำลิงก์รูปเพื่อนรูปที่สองมาใส่ที่ src ได้เลย) -->
+        <div class="sketch-border p-4 bg-zinc-950/80 relative flex flex-col items-center reveal-item">
+            <div class="tape absolute -top-3 w-28 h-7 z-30"></div>
+            
+            <div class="relative w-full aspect-square bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 flex items-center justify-center mb-4">
+                <img id="img-preview-2" src="P1.png" alt="Friend Photo 2" class="w-full h-full object-cover">
+            </div>
+
+            <div class="w-full text-center">
+                <p class="font-sketch text-lg text-zinc-300 wiggle">
+    King ธิติวุฒิ <span class="text-red-500 drop-shadow-[0_0_8px_red]">
+    เกณฑ์ทหาร
+</span>
+</p>
+            </div>
+        </div>
+
+        <!-- INTERACTIVE COLOR PICKER & FALLING TEXT TRIGGER -->
+        <div class="md:col-span-2 sketch-border p-6 bg-zinc-950/90 text-center relative overflow-hidden reveal-item">
+            <div class="inline-block cursor-pointer" onclick="triggerConfetti()">
+                <h2 class="text-2xl md:text-3xl font-extrabold font-sketch wiggle mb-1 hover:scale-105 transition">
+                    "จัดให้เสนอ ตามที่สนอง" 
+                </h2>
+            </div>
+            <p class="text-zinc-400 text-sm mb-4">กูถามละกวนตีนนะ อยากได้สีกูเฉยยยย กูจะหลุดดดด</p>
+
+            <!-- Color Palette Buttons -->
+            <div class="flex flex-wrap justify-center gap-3 my-2">
+                <button onclick="changeAccentColor('#ffffff')" class="w-10 h-10 rounded-full bg-white border-2 border-zinc-600 hover:scale-110 transition shadow-lg" title="White"></button>
+                <button onclick="changeAccentColor('#facc15')" class="w-10 h-10 rounded-full bg-yellow-400 border-2 border-zinc-600 hover:scale-110 transition shadow-lg" title="Neon Yellow"></button>
+                <button onclick="changeAccentColor('#ec4899')" class="w-10 h-10 rounded-full bg-pink-500 border-2 border-zinc-600 hover:scale-110 transition shadow-lg" title="Cyber Pink"></button>
+                <button onclick="changeAccentColor('#22c55e')" class="w-10 h-10 rounded-full bg-green-500 border-2 border-zinc-600 hover:scale-110 transition shadow-lg" title="Lime Green"></button>
+                <button onclick="changeAccentColor('#38bdf8')" class="w-10 h-10 rounded-full bg-sky-400 border-2 border-zinc-600 hover:scale-110 transition shadow-lg" title="Electric Blue"></button>
+            </div>
+        </div>
+
+        <!-- INTERACTIVE CAKE & WISH CARD SECTION -->
+        <div class="md:col-span-2 sketch-border p-6 md:p-8 bg-zinc-950/90 flex flex-col md:flex-row items-center justify-between gap-6 reveal-item">
+            
+            <!-- SVG Hand-Drawn Birthday Cake with Interactive Candle -->
+            <div class="flex flex-col items-center justify-center min-w-[180px]">
+                <div id="cake-box" class="relative cursor-pointer group" onclick="blowCandle()">
+                    <!-- Flame -->
+                    <div id="flame" class="absolute left-[85px] top-2 -translate-x-1/2 w-4 h-7 bg-amber-400 rounded-full blur-[1px] animate-pulse shadow-[0_0_12px_#f59e0b] group-hover:scale-125 transition"></div>
+                    
+                    <!-- Cake SVG Line Art -->
+                    <svg width="170" height="150" viewBox="0 0 170 150" fill="none" xmlns="http://www.w3.org/2000/svg" class="stroke-white">
+                        <!-- Candle -->
+                        <rect x="81" y="25" width="8" height="30" rx="2" fill="#18181b" stroke="currentColor" stroke-width="2.5"/>
+                        <!-- Candle stripes -->
+                        <path d="M81 33L89 37M81 43L89 47" stroke="currentColor" stroke-width="2"/>
+                        
+                        <!-- Top Layer -->
+                        <path d="M40 55C40 55 55 50 85 50C115 50 130 55 130 55V85C130 85 115 90 85 90C55 90 40 85 40 85V55Z" fill="#09090b" stroke="currentColor" stroke-width="3"/>
+                        <!-- Drips -->
+                        <path d="M40 55C45 65 50 65 55 55C60 68 68 68 73 55C80 65 85 65 92 55C100 68 108 68 115 55C122 65 127 65 130 55" stroke="currentColor" stroke-width="2.5"/>
+                        
+                        <!-- Bottom Layer -->
+                        <path d="M25 85C25 85 45 78 85 78C125 78 145 85 145 85V125C145 125 125 133 85 133C45 133 25 125 25 125V85Z" fill="#09090b" stroke="currentColor" stroke-width="3"/>
+                        <!-- Plate -->
+                        <path d="M10 128C10 128 40 140 85 140C130 140 160 128 160 128" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <p id="candle-status" class="text-xs text-zinc-400 mt-2 font-sketch wiggle">
+                    [ เป่าเค้กๆ 🕯️ ]
+                </p>
+            </div>
+
+            <!-- Wish Message Box -->
+            <div class="w-full text-left bg-zinc-900/80 p-5 rounded-xl border border-zinc-800 relative">
+                <h3 class="text-xl font-bold font-sketch mb-2 flex items-center gap-2">
+                    <i class="fa-solid fa-pen-nib text-sm"></i> HAPPY Birthday
+                </h3>
+                <p class="font-sketch text-lg text-zinc-300 wiggle">
+แฮปๆค้าบเพื่อน มีความสุขมากๆค้าบบ <span class="text-pink-500 drop-shadow-[0_0_8px_red]">
+    รักเสมอจ่ะะะะ </span>
+                </p>
+                <div class="mt-4 flex justify-end">
+                    <button onclick="triggerConfetti()" class="px-4 py-2 bg-zinc-800 text-xs font-bold rounded-lg border border-zinc-700 hover:bg-zinc-700 transition sketch-button">
+                        <i class="fa-solid fa-party-horn mr-1"></i> มึงกดนี้ด้วยยยยไอเวรร
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Control Music Widget -->
+    <div class="fixed bottom-4 right-4 z-40 bg-zinc-950/90 border border-zinc-700 p-3 rounded-2xl flex items-center gap-3 backdrop-blur-md shadow-2xl">
+        <!-- Visualizer Bars Animation -->
+        <div id="visualizer" class="flex items-end gap-1 h-6 w-8">
+            <div class="w-1.5 bg-white h-2 rounded-full transition-all duration-200"></div>
+            <div class="w-1.5 bg-white h-5 rounded-full transition-all duration-200"></div>
+            <div class="w-1.5 bg-white h-3 rounded-full transition-all duration-200"></div>
+            <div class="w-1.5 bg-white h-6 rounded-full transition-all duration-200"></div>
+        </div>
+
+        <button id="music-toggle-btn" onclick="toggleMusic()" class="p-2 rounded-full hover:bg-zinc-800 transition text-zinc-300 hover:text-white" title="เล่น/หยุดเพลง">
+            <i id="music-icon" class="fa-solid fa-volume-high text-lg"></i>
+        </button>
+        
+        <!-- Volume Slider Adjustment -->
+        <input id="volume-slider" type="range" min="0" max="1" step="0.05" value="0.8" oninput="setVolume(this.value)" class="w-16 sm:w-20 accent-white cursor-pointer" title="ปรับระดับเสียง">
+
+        <span id="volume-text" class="text-xs font-mono text-zinc-400 hidden sm:inline">80% 🎵</span>
+    </div>
+
+    <script>
+       
+
+        
+        // Falling Text Logic
+        const fallingContainer = document.getElementById('falling-text-container');
+        
+        function spawnFallingText() {
+            const textElement = document.createElement('div');
+            textElement.className = 'falling-item font-sketch';
+            textElement.innerText = 'ชอบสีไรเพื่อน';
+            
+            const randomX = Math.random() * 92; 
+            const randomSize = Math.floor(Math.random() * 12) + 16; 
+            const randomDuration = Math.random() * 4 + 4; 
+
+            textElement.style.left = `${randomX}vw`;
+            textElement.style.fontSize = `${randomSize}px`;
+            textElement.style.animationDuration = `${randomDuration}s`;
+
+            fallingContainer.appendChild(textElement);
+
+            setTimeout(() => {
+                textElement.remove();
+            }, randomDuration * 1000);
+        }
+
+        setInterval(spawnFallingText, 800);
+
+        function changeAccentColor(colorHex) {
+            document.documentElement.style.setProperty('--accent-color', colorHex);
+            document.documentElement.style.setProperty('--accent-glow', `${colorHex}55`);
+
+            confetti({
+                particleCount: 25,
+                spread: 60,
+                origin: { y: 0.7 },
+                colors: [colorHex, '#ffffff']
+            });
+        }
+
+        let candleLit = true;
+        function blowCandle() {
+            const flame = document.getElementById('flame');
+            const status = document.getElementById('candle-status');
+
+            if (candleLit) {
+                flame.style.display = 'none';
+                candleLit = false;
+                status.innerText = '[ จุดเทียนใหม่อีกครั้ง 🔥 ]';
+                triggerConfetti();
+            } else {
+                flame.style.display = 'block';
+                candleLit = true;
+                status.innerText = '[ คลิกที่เทียนเพื่อเป่าเค้ก! 🕯️ ]';
+            }
+        }
+
+        function triggerConfetti() {
+            confetti({
+                particleCount: 80,
+                spread: 90,
+                origin: { y: 0.6 }
+            });
+        }
+
+        document.getElementById('enter-btn').addEventListener('click', () => {
+    const overlay = document.getElementById('overlay');
+
+    // Popup ค่อยๆ หาย
+    overlay.classList.add('opacity-0');
+
+    setTimeout(() => {
+        overlay.style.display = 'none';
+
+        // ดึงทุก element ที่ต้องการ animate
+        const items = document.querySelectorAll('.reveal-item');
+
+        // ให้ขึ้นทีละอัน
+        items.forEach((item, index) => {
+            setTimeout(() => {
+                item.classList.add('show');
+            }, index * 250);
+        });
+
+    }, 500);
+
+    startMusic();
+    triggerConfetti();
+});
+    </script>
+    <audio id="music" loop>
+  <source src="pleum.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+  document.addEventListener("click", function() {
+    document.getElementById("music").play();
+  }, { once: true });
+</script>
+</body>
+</html>
